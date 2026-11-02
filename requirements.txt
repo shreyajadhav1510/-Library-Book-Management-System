@@ -1,0 +1,9 @@
+# Core Application Dependencies
+Flask>=3.0.0,<4.0.0
+
+# Optional Dependencies for Automated End-to-End Functional UI Tests (Selenium)
+# To run tests/test_functional_selenium.py, install these via:
+#   pip install selenium webdriver-manager
+#
+# selenium>=4.20.0
+# webdriver-manager>=4.0.0

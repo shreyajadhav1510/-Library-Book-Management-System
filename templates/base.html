@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Libra — Library Management{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+      <div class="brand-section">
+        <div class="brand-icon">📚</div>
+        <div class="brand-info">
+          <h1>Libra</h1>
+          <p>Library Administration</p>
+        </div>
+      </div>
+
+      <nav class="nav-menu">
+        <a href="{{ url_for('dashboard') }}" class="nav-link {% if active_page == 'dashboard' %}active{% endif %}">
+          <span class="icon">📊</span>
+          <span>Dashboard</span>
+        </a>
+        <a href="{{ url_for('books_page') }}" class="nav-link {% if active_page == 'books' %}active{% endif %}">
+          <span class="icon">📖</span>
+          <span>Books Catalogue</span>
+        </a>
+        <a href="{{ url_for('students_page') }}" class="nav-link {% if active_page == 'students' %}active{% endif %}">
+          <span class="icon">🎓</span>
+          <span>Students</span>
+        </a>
+        <a href="{{ url_for('issue_return_page') }}" class="nav-link {% if active_page == 'issue_return' %}active{% endif %}">
+          <span class="icon">🔄</span>
+          <span>Issue & Return</span>
+        </a>
+        <a href="{{ url_for('transactions_page') }}" class="nav-link {% if active_page == 'transactions' %}active{% endif %}">
+          <span class="icon">📑</span>
+          <span>Transactions</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="system-status">
+          <span class="status-indicator-dot"></span>
+          <span>System Online</span>
+        </div>
+        <div class="system-edition">Library Administration Console</div>
+      </div>
+    </aside>
+
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+      <header class="main-header">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <button class="mobile-menu-btn" onclick="toggleSidebar()" aria-label="Toggle navigation">☰</button>
+          <div class="header-title">
+            <h2>{% block page_title %}Library Management{% endblock %}</h2>
+            <div class="header-subtitle">{% block header_subtitle %}Manage books, students and circulation in one place{% endblock %}</div>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <div class="datetime-pill">
+            <span style="font-size:14px;">📅</span>
+            <span id="currentDateStr">Circulation Desk</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="content-body">
+        <!-- Flash Messages -->
+        <div class="flash-container">
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                  <span>{{ message }}</span>
+                  <button type="button" onclick="this.parentElement.remove()" style="background:none; border:none; cursor:pointer; font-size:16px;">×</button>
+                </div>
+              {% endfor %}
+            {% endif %}
+          {% endwith %}
+        </div>
+
+        {% block content %}{% endblock %}
+      </div>
+
+      <footer class="app-footer">
+        <div>© Libra Library Management · Production Administrative Console</div>
+        <div style="color:var(--text-subtle);">All circulation data verified</div>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('open');
+    }
+
+    // Format current local date cleanly for header pill
+    try {
+      const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
+      const dateEl = document.getElementById('currentDateStr');
+      if (dateEl) {
+        dateEl.textContent = new Date().toLocaleDateString(undefined, options);
+      }
+    } catch (e) {}
+  </script>
+</body>
+</html>

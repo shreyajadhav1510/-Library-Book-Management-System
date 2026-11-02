@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Students · Libra — Library Management{% endblock %}
+{% block page_title %}Student Patron Directory{% endblock %}
+{% block header_subtitle %}Register and oversee student patrons and active loan allowances{% endblock %}
+
+{% block content %}
+<!-- Student Registration Panel -->
+<div class="card" id="register">
+  <div class="card-header">
+    <div>
+      <div class="card-title">
+        <span>👤</span>
+        <span>Register New Student</span>
+      </div>
+      <div class="card-subtitle">Add a student to the institutional library system</div>
+    </div>
+  </div>
+  <div class="card-body">
+    <form action="{{ url_for('add_student') }}" method="post">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="student_id">Student ID / Roll No *</label>
+          <input type="text" id="student_id" name="student_id" class="form-control" placeholder="e.g. 23000388" required maxlength="50">
+        </div>
+        <div class="form-group">
+          <label for="name">Full Name *</label>
+          <input type="text" id="name" name="name" class="form-control" placeholder="e.g. John Doe" required maxlength="100">
+        </div>
+        <div class="form-group">
+          <label for="email">Institutional Email *</label>
+          <input type="email" id="email" name="email" class="form-control" placeholder="e.g. student@university.edu" required maxlength="120">
+        </div>
+        <div class="form-group">
+          <label for="department">Department / Branch *</label>
+          <input type="text" id="department" name="department" class="form-control" placeholder="e.g. Computer Science (CSE)" required maxlength="80">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">👤 Register Student</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Student List and Search -->
+<div class="card">
+  <div class="card-header">
+    <div>
+      <div class="card-title">
+        <span>🎓</span>
+        <span>Registered Students <span class="badge badge-purple" style="margin-left:8px;">{{ students|length }}</span></span>
+      </div>
+      <div class="card-subtitle">Search, view and manage all library patrons</div>
+    </div>
+
+    <!-- Search Form -->
+    <form action="{{ url_for('students_page') }}" method="get" class="filter-bar">
+      <div class="search-input-wrapper">
+        <span class="search-icon">🔍</span>
+        <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Search ID, name, or email...">
+      </div>
+      <button type="submit" class="btn btn-secondary btn-sm">Search</button>
+      {% if query %}
+        <a href="{{ url_for('students_page') }}" class="btn btn-sm" style="color:var(--text-muted); text-decoration:none;">Clear filter</a>
+      {% endif %}
+    </form>
+  </div>
+
+  <div class="card-body" style="padding: 0;">
+    {% if students %}
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Student ID</th>
+            <th>Full Name</th>
+            <th>Email</th>
+            <th>Department</th>
+            <th>Active Loans</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for student in students %}
+          <tr>
+            <td style="font-weight:700; color:var(--primary-dark);">{{ student.student_id }}</td>
+            <td style="font-weight:600;">{{ student.name }}</td>
+            <td><a href="mailto:{{ student.email }}" style="color:var(--text-muted); text-decoration:none;">{{ student.email }}</a></td>
+            <td><span class="badge badge-purple">{{ student.department }}</span></td>
+            <td>
+              {% if student.active_loans and student.active_loans > 0 %}
+                <span class="badge badge-warning">{{ student.active_loans }} active</span>
+              {% else %}
+                <span class="badge badge-success">0 active</span>
+              {% endif %}
+            </td>
+            <td>
+              <div style="display: flex; gap: 8px;">
+                <a href="{{ url_for('edit_student_page', student_id=student.student_id) }}" class="btn btn-secondary btn-sm">✏️ Edit</a>
+                <form action="{{ url_for('delete_student', student_id=student.student_id) }}" method="post" onsubmit="return confirm('Delete this student? Student must have no active book loans.')">
+                  <button type="submit" class="btn btn-danger-outline btn-sm">🗑️ Delete</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">🎓</div>
+      <h3>{% if query %}No students found{% else %}No students registered yet{% endif %}</h3>
+      <p>{% if query %}Try adjusting your search criteria.{% else %}Use the form above to register students into the system.{% endif %}</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

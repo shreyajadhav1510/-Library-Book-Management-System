@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard · Libra — Library Management{% endblock %}
+{% block page_title %}Operational Dashboard{% endblock %}
+{% block header_subtitle %}Real-time administrative snapshot of book inventory and circulation{% endblock %}
+
+{% block content %}
+<!-- Quick Action Buttons -->
+<div class="quick-actions-bar">
+  <a href="{{ url_for('books_page') }}#add" class="action-btn-large">
+    <span style="font-size:18px;">➕</span>
+    <span>Add New Book</span>
+  </a>
+  <a href="{{ url_for('students_page') }}#register" class="action-btn-large">
+    <span style="font-size:18px;">👤</span>
+    <span>Register Student</span>
+  </a>
+  <a href="{{ url_for('issue_return_page') }}#issue" class="action-btn-large">
+    <span style="font-size:18px;">📖</span>
+    <span>Issue a Book</span>
+  </a>
+</div>
+
+<!-- Database-Derived Statistics Grid -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon-wrapper stat-icon-purple">📚</div>
+    <div class="stat-content">
+      <h3>Total Book Copies</h3>
+      <div class="stat-value">{{ total_books }}</div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon-wrapper stat-icon-green">✅</div>
+    <div class="stat-content">
+      <h3>Available Copies</h3>
+      <div class="stat-value">{{ total_available }}</div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon-wrapper stat-icon-amber">📤</div>
+    <div class="stat-content">
+      <h3>Currently Issued</h3>
+      <div class="stat-value">{{ total_issued }}</div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon-wrapper stat-icon-blue">🎓</div>
+    <div class="stat-content">
+      <h3>Registered Students</h3>
+      <div class="stat-value">{{ total_students }}</div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon-wrapper stat-icon-rose">⚠️</div>
+    <div class="stat-content">
+      <h3>Overdue Loans</h3>
+      <div class="stat-value">{{ overdue_loans }}</div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Borrowing & Return Transactions -->
+<div class="card">
+  <div class="card-header">
+    <div>
+      <div class="card-title">
+        <span>⏱️</span>
+        <span>Recent Borrowing & Return Activity</span>
+      </div>
+      <div class="card-subtitle">Real-time log of the latest library book circulation events</div>
+    </div>
+    <a href="{{ url_for('transactions_page') }}" class="btn btn-secondary btn-sm">View Full History →</a>
+  </div>
+
+  <div class="card-body" style="padding: 0;">
+    {% if recent_transactions %}
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Tx ID</th>
+            <th>Book Title</th>
+            <th>Student Patron</th>
+            <th>Issue Date</th>
+            <th>Due Date</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for tx in recent_transactions %}
+          <tr>
+            <td style="font-weight:600; color:var(--text-muted);">#{{ tx.id }}</td>
+            <td style="font-weight:700;">{{ tx.book_title }}</td>
+            <td>
+              <div>{{ tx.student_name }}</div>
+              <small style="color:var(--text-subtle);">ID: {{ tx.student_id }}</small>
+            </td>
+            <td>{{ tx.issue_date }}</td>
+            <td>{{ tx.due_date }}</td>
+            <td>
+              {% if tx.status == 'RETURNED' %}
+                <span class="badge badge-success">✓ Returned</span>
+              {% elif tx.is_overdue %}
+                <span class="badge badge-danger">⚠️ Overdue</span>
+              {% else %}
+                <span class="badge badge-warning">● Active Loan</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">📂</div>
+      <h3>No circulation activity recorded yet</h3>
+      <p>When books are issued or returned, activity records will appear here immediately.</p>
+      <a href="{{ url_for('issue_return_page') }}" class="btn btn-primary btn-sm">Issue First Book</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
