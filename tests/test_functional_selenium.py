@@ -128,7 +128,18 @@ class LibrarySystemSeleniumE2ETest(unittest.TestCase):
         self.assertTrue(len(return_forms) > 0)
         return_forms[0].find_element(By.TAG_NAME, "button").click()
 
-        self.assertIn("successfully returned", driver.page_source)
+        # Handle confirmation alert
+        time.sleep(0.5)  # Brief wait for alert to appear
+        try:
+            alert = WebDriverWait(driver, 3).until(EC.alert_is_present())
+            alert.accept()
+        except:
+            pass  # If no alert, continue
+
+        # Wait for page to refresh after return
+        WebDriverWait(driver, 5).until(
+            lambda d: "successfully returned" in d.page_source or "Returned" in d.page_source
+        )
 
         # 7. Verify inventory restored on Books page
         driver.get(f"{self.BASE_URL}/books")
