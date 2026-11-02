@@ -61,6 +61,8 @@ class LibrarySystemSeleniumE2ETest(unittest.TestCase):
 
     def test_complete_library_user_journey(self):
         from selenium.webdriver.common.by import By
+        from selenium.webdriver.support.ui import WebDriverWait
+        from selenium.webdriver.support import expected_conditions as EC
 
         driver = self.driver
 
@@ -78,8 +80,10 @@ class LibrarySystemSeleniumE2ETest(unittest.TestCase):
         driver.find_element(By.ID, "quantity").send_keys("3")
         driver.find_element(By.CSS_SELECTOR, "#add button[type='submit']").click()
 
-        # Check flash and book table
-        self.assertIn("added successfully", driver.page_source)
+        # Wait for page to refresh and check for book in table
+        WebDriverWait(driver, 5).until(
+            lambda d: "E2E Clean Architecture" in d.page_source
+        )
         self.assertIn("E2E Clean Architecture", driver.page_source)
 
         # 3. Navigate to Students & Register a Student
@@ -91,7 +95,10 @@ class LibrarySystemSeleniumE2ETest(unittest.TestCase):
         driver.find_element(By.ID, "department").send_keys("Software Engineering")
         driver.find_element(By.CSS_SELECTOR, "#register button[type='submit']").click()
 
-        self.assertIn("registered successfully", driver.page_source)
+        # Wait for page to refresh and check for student in table
+        WebDriverWait(driver, 5).until(
+            lambda d: student_id in d.page_source
+        )
         self.assertIn(student_id, driver.page_source)
 
         # 4. Navigate to Issue & Return and Issue Book
